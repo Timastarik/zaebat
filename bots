@@ -1,0 +1,77 @@
+import telebot
+import time
+import threading
+token='6285500246:AAEr_f0PWWUGny_Cn70oez0TAEmrMeJE6Zw'
+bot=telebot.TeleBot(token)
+global textid
+global t
+global man_id
+global username
+global admin_id
+global balance
+global wait_time
+global work
+wait_time = 15
+t = 0
+username = 0
+admin_id = 5699395851
+man_id = 0
+textid=0
+balance = 0
+work = 0 #0 - не работает | 1 - работает
+def konec_work(message):
+	bot.send_message(message.chat.id, f'Отлично! Ты закончил работу! Твой баланс:  {balance}')
+	work=0
+@bot.message_handler(commands=['start'])
+def start_message(message):
+  bot.send_message(message.chat.id,'Привет ✌\nЭто офицальный бот Зарничного Наркопритона "У Белочки"\nДля вывода списка товаров, напишите - \n/купить')
+@bot.message_handler(commands=['купить'])
+def tovar(message):
+    bot.send_message(message.chat.id, 'Выберите товар(напишите /берёза или /кишмиш)')
+@bot.message_handler(commands=["береза",'берёза'])
+def bereza(message):
+    username = message.from_user.username
+    bot.send_message(message.chat.id, 'Заказ принят!')
+    man_id = message.from_user.id
+    bot.send_message(admin_id,'Получен заказ! Товар: '+ 'Берёза\nTG покупателя для связи: '+username+'\nTG ID покупателя: '+str(man_id))
+@bot.message_handler(commands=["кишмиш"])
+def bereza(message):
+    username = message.from_user.username
+    bot.send_message(message.chat.id, 'Заказ принят!')
+    man_id =message.from_user.id
+    bot.send_message(admin_id,'Получен заказ! Товар: '+ 'КишМиш\nTG покупателя для связи: '+username+'\nTG ID покупателя: '+str(man_id))
+@bot.message_handler(commands=["чат"])
+def chat(message):
+    if message.from_user.id == admin_id:
+        msg = bot.send_message(int(admin_id), 'Введи айди кому отправить:')
+        bot.register_next_step_handler(msg,chat2)
+    else:
+    	bot.send_message(message.chat.id, 'Недостаточно прав!')
+def chat2(message):
+        global mestext
+        global id
+        id=message.text
+        msg2=bot.send_message(admin_id, 'Введи текст сообщения:')
+        bot.register_next_step_handler(msg2,chat3)
+def chat3(message):
+        mestext=message.text
+        try:
+            bot.send_message(int(id), str(mestext))
+        except:
+        	bot.send_message(admin_id, 'ошибка')
+@bot.message_handler(commands=['шишки'])
+def get_reward(message):
+	global work
+	global balance
+	if work == 0:
+		bot.send_message(message.chat.id, f'Ты начал работать! Твой баланс: {balance}\nМы сообщим, когда будет завершена работа')
+		time.sleep(30)
+		work=+1
+		balance+=1
+		konec_work(message)
+	else:
+		bot.send_message(message.chat.id, 'Ты уже работаешь')
+@bot.message_handler(commands=['профиль'])
+def profile(message):
+	bot.send_message(message.chat.id,f'👤 Профиль\n💵 Баланс: {balance} шишек')
+bot.infinity_polling()
